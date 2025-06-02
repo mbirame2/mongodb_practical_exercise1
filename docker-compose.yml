@@ -1,0 +1,32 @@
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"  
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: mongo
+    volumes:
+      - mongodb_data:/data/db
+
+
+  pipeline:
+    build: .
+    container_name: medical_etl
+    volumes:
+      - ./data:/app/data
+      - ./etl:/app
+    environment:
+      MONGO_URI: mongodb://mongo:mongo@mongo:27017
+      DB_NAME: medical_db
+    depends_on:
+      - mongodb
+    networks:
+      - medical_net
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+networks:
+  medical_net:
